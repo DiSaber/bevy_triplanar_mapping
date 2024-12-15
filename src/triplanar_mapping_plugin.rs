@@ -1,7 +1,5 @@
 use crate::triplanar_extension::TriplanarExtension;
-use bevy::asset::load_internal_asset;
-use bevy::pbr::ExtendedMaterial;
-use bevy::prelude::*;
+use bevy::{asset::load_internal_asset, pbr::ExtendedMaterial, prelude::*};
 
 pub(crate) const TRIPLANAR_EXTENSION_SHADER_HANDLE: Handle<Shader> =
     Handle::weak_from_u128(11996004641749241285);
