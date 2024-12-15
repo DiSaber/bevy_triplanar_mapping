@@ -12,11 +12,18 @@ pub struct TriplanarExtension {
     /// The uv scale of the mapping. (default: 1.0)
     #[uniform(100)]
     pub uv_scale: f32,
+    /// The sharpness of the blending in transition areas. (default: 8.0)
+    /// Lower -> Smoother transitions, Higher -> Sharper transitions
+    #[uniform(100)]
+    pub blending: f32,
 }
 
 impl Default for TriplanarExtension {
     fn default() -> Self {
-        Self { uv_scale: 1.0 }
+        Self {
+            uv_scale: 1.0,
+            blending: 8.0,
+        }
     }
 }
 

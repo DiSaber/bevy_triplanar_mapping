@@ -77,7 +77,7 @@ fn pbr_input_from_standard_material(
     triplanar_extension: TriplanarExtension
 ) -> pbr_types::PbrInput {
     // ----------------------- Calculate triplanar mapping ----------------------- //
-    var triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, 8.0);
+    var triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, triplanar_extension.blending);
     triplanar_mapping.uv_x *= triplanar_extension.uv_scale;
     triplanar_mapping.uv_y *= triplanar_extension.uv_scale;
     triplanar_mapping.uv_z *= triplanar_extension.uv_scale;
