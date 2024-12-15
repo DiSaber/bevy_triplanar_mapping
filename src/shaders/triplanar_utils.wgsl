@@ -2,6 +2,8 @@
 
 #import bevy_pbr::{pbr_functions, pbr_functions::{SampleBias, sample_texture}}
 
+// From: https://github.com/bonsairobo/bevy_triplanar_splatting/blob/main/src/shaders/triplanar.wgsl
+// ----------------------- ----------------------- //
 struct TriplanarMapping {
     // Weights for blending between the planes
     w: vec3<f32>,
@@ -16,6 +18,7 @@ fn calculate_triplanar_mapping(p: vec3<f32>, n: vec3<f32>, k: f32) -> TriplanarM
     w = w / (w.x + w.y + w.z);
     return TriplanarMapping(w, p.yz, p.zx, p.xy);
 }
+// ----------------------- ----------------------- //
 
 fn triplanar_texture(
     tex: texture_2d<f32>,
