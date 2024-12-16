@@ -82,12 +82,21 @@ fn pbr_input_from_standard_material(
     // ----------------------- Calculate triplanar mapping ----------------------- //
     var triplanar_mapping: TriplanarMapping;
 
-    if triplanar_extension.local_space == 1u {
+    let world_from_local = transpose(mesh[in.instance_index].world_from_local);
+
+    // Only need to calculate the scale for local space or uv alignment
+    var scale: vec3<f32>;
+    if ((triplanar_extension.flags & triplanar_types::LOCAL_SPACE_BIT) != 0u) ||
+        ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
+        let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
+        scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
+    }
+
+    if ((triplanar_extension.flags & triplanar_types::LOCAL_SPACE_BIT) != 0u) {
         let inverse_matrix = transpose(mat2x4_f32_to_mat3x3_unpack(
             mesh[in.instance_index].local_from_world_transpose_a,
             mesh[in.instance_index].local_from_world_transpose_b,
         ));
-        let world_from_local = transpose(mesh[in.instance_index].world_from_local);
         let local_from_world = affine3_to_square(transpose(
             mat4x3<f32>(
                 inverse_matrix[0],
@@ -97,14 +106,15 @@ fn pbr_input_from_standard_material(
             )
         ));
 
-        // Calculate the scale so we can re-apply it after getting the local mesh position
-        // Can this instead be done in the `local_from_world` matrix?
-        let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
-        let scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
-
         triplanar_mapping = calculate_triplanar_mapping((local_from_world * in.world_position).xyz * scale, normalize(inverse_matrix * in.world_normal), triplanar_extension.blending);
     } else {
         triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, triplanar_extension.blending);
+    }
+
+    if ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
+        triplanar_mapping.uv_x += scale.yz / 2.0;
+        triplanar_mapping.uv_y += scale.zx / 2.0;
+        triplanar_mapping.uv_z += scale.xy / 2.0;
     }
 
     triplanar_mapping.uv_x *= triplanar_extension.uv_scale;

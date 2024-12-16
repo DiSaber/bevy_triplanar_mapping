@@ -23,6 +23,10 @@ pub struct TriplanarExtension {
 
     /// If the triplanar mapping should be done in local object space. (default: true)
     pub local_space: bool,
+
+    /// If the triplanar mapping should be corner aligned versus in the center aligned (default: false)
+    /// Note: This value should really only be used if `local_space` is true
+    pub corner_align: bool,
 }
 
 impl Default for TriplanarExtension {
@@ -31,6 +35,7 @@ impl Default for TriplanarExtension {
             uv_scale: 1.0,
             blending: 8.0,
             local_space: true,
+            corner_align: false,
         }
     }
 }
@@ -40,16 +45,23 @@ impl Default for TriplanarExtension {
 struct TriplanarExtensionUniform {
     pub uv_scale: f32,
     pub blending: f32,
-    /// 1 -> true
-    pub local_space: u32,
+    pub flags: u32,
 }
 
 impl AsBindGroupShaderType<TriplanarExtensionUniform> for TriplanarExtension {
     fn as_bind_group_shader_type(&self, _: &RenderAssets<GpuImage>) -> TriplanarExtensionUniform {
+        let mut flags = 0_u32;
+        if self.local_space {
+            flags |= 1;
+        }
+        if self.corner_align {
+            flags |= 2;
+        }
+
         TriplanarExtensionUniform {
             uv_scale: self.uv_scale,
             blending: self.blending,
-            local_space: self.local_space.into(),
+            flags,
         }
     }
 }
