@@ -28,8 +28,9 @@
 #import bevy_pbr::forward_io::VertexOutput
 #endif
 
-#import triplanar_utils::{calculate_triplanar_mapping, triplanar_texture}
+#import triplanar_utils::{TriplanarMapping, calculate_triplanar_mapping, triplanar_texture}
 #import triplanar_types::TriplanarExtension;
+#import bevy_render::maths::{mat2x4_f32_to_mat3x3_unpack, affine3_to_square, affine3_to_mat3x3}
 
 // prepare a basic PbrInput from the vertex stage output, mesh binding and view binding
 fn pbr_input_from_vertex_output(
@@ -77,7 +78,33 @@ fn pbr_input_from_standard_material(
     triplanar_extension: TriplanarExtension
 ) -> pbr_types::PbrInput {
     // ----------------------- Calculate triplanar mapping ----------------------- //
-    var triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, triplanar_extension.blending);
+    var triplanar_mapping: TriplanarMapping;
+
+    if triplanar_extension.local_space == 1u {
+        let inverse_matrix = transpose(mat2x4_f32_to_mat3x3_unpack(
+            mesh[in.instance_index].local_from_world_transpose_a,
+            mesh[in.instance_index].local_from_world_transpose_b,
+        ));
+        let world_from_local = transpose(mesh[in.instance_index].world_from_local);
+        let local_from_world = affine3_to_square(transpose(
+            mat4x3<f32>(
+                inverse_matrix[0],
+                inverse_matrix[1],
+                inverse_matrix[2],
+                -(inverse_matrix * world_from_local[3])
+            )
+        ));
+
+        // Calculate the scale so we can re-apply it after getting the local mesh position
+        // Can this instead be done in the `local_from_world` matrix?
+        let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
+        let scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
+
+        triplanar_mapping = calculate_triplanar_mapping((local_from_world * in.world_position).xyz * scale, normalize(inverse_matrix * in.world_normal), triplanar_extension.blending);
+    } else {
+        triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, triplanar_extension.blending);
+    }
+
     triplanar_mapping.uv_x *= triplanar_extension.uv_scale;
     triplanar_mapping.uv_y *= triplanar_extension.uv_scale;
     triplanar_mapping.uv_z *= triplanar_extension.uv_scale;
