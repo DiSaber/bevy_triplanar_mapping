@@ -1,5 +1,9 @@
 // Pulled from https://github.com/bevyengine/bevy/blob/main/crates/bevy_pbr/src/render/pbr.wgsl
 
+// ----------------------- Custom imports ----------------------- //
+#import custom_pbr::pbr_fragment::pbr_input_from_standard_material
+// ----------------------- ----------------------- //
+
 #import bevy_pbr::{
     pbr_types,
     pbr_functions::alpha_discard,
@@ -27,11 +31,6 @@
 #import bevy_core_pipeline::oit::oit_draw
 #endif // OIT_ENABLED
 
-#import custom_pbr::pbr_fragment::pbr_input_from_standard_material
-#import triplanar_types::TriplanarExtension;
-
-@group(2) @binding(100)
-var<uniform> triplanar_extension: TriplanarExtension;
 
 @fragment
 fn fragment(
@@ -54,8 +53,7 @@ fn fragment(
 #endif
 
     // generate a PbrInput struct from the StandardMaterial bindings
-    // Uses `custom_pbr.wgsl`
-    var pbr_input = pbr_input_from_standard_material(in, is_front, triplanar_extension);
+    var pbr_input = pbr_input_from_standard_material(in, is_front);
 
     // alpha discard
     pbr_input.material.base_color = alpha_discard(pbr_input.material, pbr_input.material.base_color);

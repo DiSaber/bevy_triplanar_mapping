@@ -2,6 +2,12 @@
 
 #define_import_path custom_pbr::pbr_fragment
 
+// ----------------------- Custom imports ----------------------- //
+#import triplanar_utils::{TriplanarMapping, calculate_triplanar_mapping, triplanar_texture}
+#import triplanar_types::{TriplanarExtension, triplanar_extension};
+#import bevy_render::maths::{mat2x4_f32_to_mat3x3_unpack, affine3_to_square, affine3_to_mat3x3}
+// ----------------------- ----------------------- //
+
 #import bevy_pbr::{
     pbr_functions,
     pbr_functions::SampleBias,
@@ -28,9 +34,6 @@
 #import bevy_pbr::forward_io::VertexOutput
 #endif
 
-#import triplanar_utils::{TriplanarMapping, calculate_triplanar_mapping, triplanar_texture}
-#import triplanar_types::TriplanarExtension;
-#import bevy_render::maths::{mat2x4_f32_to_mat3x3_unpack, affine3_to_square, affine3_to_mat3x3}
 
 // prepare a basic PbrInput from the vertex stage output, mesh binding and view binding
 fn pbr_input_from_vertex_output(
@@ -75,7 +78,6 @@ fn pbr_input_from_vertex_output(
 fn pbr_input_from_standard_material(
     in: VertexOutput,
     is_front: bool,
-    triplanar_extension: TriplanarExtension
 ) -> pbr_types::PbrInput {
     // ----------------------- Calculate triplanar mapping ----------------------- //
     var triplanar_mapping: TriplanarMapping;
