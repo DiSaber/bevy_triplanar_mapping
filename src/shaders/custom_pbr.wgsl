@@ -86,8 +86,7 @@ fn pbr_input_from_standard_material(
 
     // Only need to calculate the scale for local space or uv alignment
     var scale: vec3<f32>;
-    if ((triplanar_extension.flags & triplanar_types::LOCAL_SPACE_BIT) != 0u) ||
-        ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
+    if ((triplanar_extension.flags & (triplanar_types::LOCAL_SPACE_BIT | triplanar_types::CORNER_ALIGN_BIT)) != 0u) {
         let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
         scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
     }
