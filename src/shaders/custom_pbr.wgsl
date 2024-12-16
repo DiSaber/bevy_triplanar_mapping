@@ -82,11 +82,11 @@ fn pbr_input_from_standard_material(
     // ----------------------- Calculate triplanar mapping ----------------------- //
     var triplanar_mapping: TriplanarMapping;
 
-    let world_from_local = transpose(mesh[in.instance_index].world_from_local);
-
-    // Only need to calculate the scale for local space or uv alignment
+    // Only read `world_from_local` and calculate the scale for local space or uv alignment
+    var world_from_local: mat4x3<f32>;
     var scale: vec3<f32>;
     if ((triplanar_extension.flags & (triplanar_types::LOCAL_SPACE_BIT | triplanar_types::CORNER_ALIGN_BIT)) != 0u) {
+        world_from_local = transpose(mesh[in.instance_index].world_from_local);
         let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
         scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
     }
