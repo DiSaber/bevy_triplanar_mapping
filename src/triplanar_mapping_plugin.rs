@@ -1,5 +1,5 @@
-use crate::triplanar_extension::TriplanarExtension;
-use bevy::{asset::load_internal_asset, pbr::ExtendedMaterial, prelude::*};
+use crate::TriplanarMaterial;
+use bevy::{asset::load_internal_asset, prelude::*};
 
 pub(crate) const TRIPLANAR_EXTENSION_SHADER_HANDLE: Handle<Shader> =
     Handle::weak_from_u128(11996004641749241285);
@@ -7,13 +7,11 @@ const CUSTOM_PBR_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(12861430
 const TRIPLANAR_TYPES_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(8524188430017026455);
 const TRIPLANAR_UTILS_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(5873599907443613347);
 
-/// Plugin that sets up the shaders and `ExtendedMaterial<StandardMaterial, TriplanarExtension>`
+/// Plugin that sets up the shaders and `TriplanarMaterial`
 pub struct TriplanarMappingPlugin;
 impl Plugin for TriplanarMappingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(MaterialPlugin::<
-            ExtendedMaterial<StandardMaterial, TriplanarExtension>,
-        >::default());
+        app.add_plugins(MaterialPlugin::<TriplanarMaterial>::default());
 
         load_internal_asset!(
             app,
