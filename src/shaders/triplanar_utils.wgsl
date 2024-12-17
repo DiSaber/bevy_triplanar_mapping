@@ -16,7 +16,7 @@ struct TriplanarMapping {
 fn calculate_triplanar_mapping(p: vec3<f32>, n: vec3<f32>, k: f32) -> TriplanarMapping {
     var w = pow(abs(n), vec3(k));
     w = w / (w.x + w.y + w.z);
-    return TriplanarMapping(w, p.yz, p.zx, p.xy);
+    return TriplanarMapping(w, p.yz, p.zx, p.yx);
 }
 // ----------------------- ----------------------- //
 

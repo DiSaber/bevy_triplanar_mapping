@@ -113,7 +113,7 @@ fn pbr_input_from_standard_material(
     if ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
         triplanar_mapping.uv_x += scale.yz / 2.0;
         triplanar_mapping.uv_y += scale.zx / 2.0;
-        triplanar_mapping.uv_z += scale.xy / 2.0;
+        triplanar_mapping.uv_z += scale.yx / 2.0;
     }
 
     triplanar_mapping.uv_x *= triplanar_extension.uv_scale;
