@@ -3,7 +3,7 @@ Triplanar mapping for the Bevy game engine. Takes inspiration from [bevy_triplan
 *Note: Only supports triplanar mapping for the `base_color_texture` at the moment*
 
 ## Usage 
-Simply add the `TriplanarMappingPlugin` to your app and create triplanar materials using `ExtendedMaterial<StandardMaterial, TriplanarExtension>`.
+Simply add the `TriplanarMappingPlugin` to your app and create triplanar materials using `TriplanarMaterial` (or `ExtendedMaterial<StandardMaterial, TriplanarExtension>` directly).
 
 `TriplanarExtension` can be configured with various options that change the mapping:
 ```
