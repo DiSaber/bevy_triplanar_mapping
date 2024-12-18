@@ -25,7 +25,7 @@ pub struct TriplanarExtension {
     pub local_space: bool,
 
     /// If the triplanar mapping should be corner aligned versus in the center aligned (default: false)
-    /// Note: This value should really only be used if `local_space` is true
+    /// Note: This value only has an effect if `local_space` is true
     pub corner_align: bool,
 }
 
