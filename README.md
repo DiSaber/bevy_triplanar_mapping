@@ -8,9 +8,12 @@ Simply add the `TriplanarMappingPlugin` to your app and create triplanar materia
 `TriplanarExtension` can be configured with various options that change the mapping:
 ```
 TriplanarExtension { 
-    uv_scale: 5.0,
     blending: 15.0,
     local_space: false,
     ..Default::default() 
 }
+```
+You can change the scale of the mapping by using the `uv_transform` property on the base `StandardMaterial`:
+```
+triplanar_material.base.uv_transform = Affine2::from_scale(Vec2::splat(uv_scale));
 ```

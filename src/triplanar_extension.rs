@@ -14,9 +14,6 @@ use crate::TRIPLANAR_EXTENSION_SHADER_HANDLE;
 #[derive(Asset, AsBindGroup, Reflect, Debug, Clone)]
 #[uniform(100, TriplanarExtensionUniform)]
 pub struct TriplanarExtension {
-    /// The uv scale of the mapping. (default: 1.0)
-    pub uv_scale: f32,
-
     /// The sharpness of the blending in transition areas. (default: 8.0)
     /// Lower -> Smoother transitions, Higher -> Sharper transitions
     pub blending: f32,
@@ -32,7 +29,6 @@ pub struct TriplanarExtension {
 impl Default for TriplanarExtension {
     fn default() -> Self {
         Self {
-            uv_scale: 1.0,
             blending: 8.0,
             local_space: true,
             corner_align: false,
@@ -43,7 +39,6 @@ impl Default for TriplanarExtension {
 /// The GPU representation of the uniform data of a [`TriplanarExtension`].
 #[derive(Clone, Default, ShaderType)]
 struct TriplanarExtensionUniform {
-    pub uv_scale: f32,
     pub blending: f32,
     pub flags: u32,
 }
@@ -59,7 +54,6 @@ impl AsBindGroupShaderType<TriplanarExtensionUniform> for TriplanarExtension {
         }
 
         TriplanarExtensionUniform {
-            uv_scale: self.uv_scale,
             blending: self.blending,
             flags,
         }

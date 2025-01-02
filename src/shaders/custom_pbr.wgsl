@@ -111,9 +111,10 @@ fn pbr_input_from_standard_material(
         triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, triplanar_extension.blending);
     }
 
-    triplanar_mapping.uv_x *= triplanar_extension.uv_scale;
-    triplanar_mapping.uv_y *= triplanar_extension.uv_scale;
-    triplanar_mapping.uv_z *= triplanar_extension.uv_scale;
+    let uv_t = pbr_bindings::material.uv_transform;
+    triplanar_mapping.uv_x = (uv_t * vec3(triplanar_mapping.uv_x, 1.0)).xy;
+    triplanar_mapping.uv_y = (uv_t * vec3(triplanar_mapping.uv_y, 1.0)).xy;
+    triplanar_mapping.uv_z = (uv_t * vec3(triplanar_mapping.uv_z, 1.0)).xy;
     // ----------------------- ----------------------- //
 
     let double_sided = (pbr_bindings::material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_DOUBLE_SIDED_BIT) != 0u;
