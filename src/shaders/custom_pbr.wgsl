@@ -136,6 +136,33 @@ fn pbr_input_from_standard_material(
     bias.mip_bias = view.mip_bias;
 #endif  // MESHLET_MESH_MATERIAL_PASS
 
+    // ---- Placed outside of #ifdef VERTEX_UVS ---- //
+    if ((pbr_bindings::material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_BASE_COLOR_TEXTURE_BIT) != 0u) {
+        // ----------------------- Triplanar mapping ----------------------- //
+        pbr_input.material.base_color *= triplanar_texture(
+            pbr_bindings::base_color_texture,
+            pbr_bindings::base_color_sampler,
+            triplanar_mapping,
+            bias
+        );
+        // ----------------------- ----------------------- //
+
+#ifdef ALPHA_TO_COVERAGE
+    // Sharpen alpha edges.
+    //
+    // https://bgolus.medium.com/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
+    let alpha_mode = pbr_bindings::material.flags &
+        pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
+    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ALPHA_TO_COVERAGE {
+        pbr_input.material.base_color.a = (pbr_input.material.base_color.a -
+                pbr_bindings::material.alpha_cutoff) /
+                max(fwidth(pbr_input.material.base_color.a), 0.0001) + 0.5;
+    }
+#endif // ALPHA_TO_COVERAGE
+
+    }
+    // ---- ---- //
+
 // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
 #ifdef VERTEX_UVS
     let uv_transform = pbr_bindings::material.uv_transform;
@@ -191,30 +218,6 @@ fn pbr_input_from_standard_material(
     }
 #endif // VERTEX_TANGENTS
 
-    if ((pbr_bindings::material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_BASE_COLOR_TEXTURE_BIT) != 0u) {
-        // ----------------------- Triplanar mapping ----------------------- //
-        pbr_input.material.base_color *= triplanar_texture(
-            pbr_bindings::base_color_texture,
-            pbr_bindings::base_color_sampler,
-            triplanar_mapping,
-            bias
-        );
-        // ----------------------- ----------------------- //
-
-#ifdef ALPHA_TO_COVERAGE
-    // Sharpen alpha edges.
-    //
-    // https://bgolus.medium.com/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
-    let alpha_mode = pbr_bindings::material.flags &
-        pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
-    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ALPHA_TO_COVERAGE {
-        pbr_input.material.base_color.a = (pbr_input.material.base_color.a -
-                pbr_bindings::material.alpha_cutoff) /
-                max(fwidth(pbr_input.material.base_color.a), 0.0001) + 0.5;
-    }
-#endif // ALPHA_TO_COVERAGE
-
-    }
 #endif // VERTEX_UVS
 
     pbr_input.material.flags = pbr_bindings::material.flags;
