@@ -81,6 +81,7 @@ fn pbr_input_from_standard_material(
 ) -> pbr_types::PbrInput {
     // ----------------------- Calculate triplanar mapping ----------------------- //
     var triplanar_mapping: TriplanarMapping;
+    let uv_t = pbr_bindings::material.uv_transform;
 
     if ((triplanar_extension.flags & triplanar_types::LOCAL_SPACE_BIT) != 0u) {
         let inverse_matrix = transpose(mat2x4_f32_to_mat3x3_unpack(
@@ -100,21 +101,11 @@ fn pbr_input_from_standard_material(
         let world_from_local3x3 = affine3_to_mat3x3(world_from_local);
         let scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
 
-        triplanar_mapping = calculate_triplanar_mapping((local_from_world * in.world_position).xyz * scale, normalize(inverse_matrix * in.world_normal));
-
-        if ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
-            triplanar_mapping.uv_x += scale.yz / 2.0;
-            triplanar_mapping.uv_y += scale.zx / 2.0;
-            triplanar_mapping.uv_z += scale.yx / 2.0;
-        }
+        triplanar_mapping = calculate_triplanar_mapping((local_from_world * in.world_position).xyz * scale, normalize(inverse_matrix * in.world_normal), uv_t, scale);
     } else {
-        triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal);
+        triplanar_mapping = calculate_triplanar_mapping(in.world_position.xyz, in.world_normal, uv_t, vec3<f32>());
     }
 
-    let uv_t = pbr_bindings::material.uv_transform;
-    triplanar_mapping.uv_x = (uv_t * vec3(triplanar_mapping.uv_x, 1.0)).xy;
-    triplanar_mapping.uv_y = (uv_t * vec3(triplanar_mapping.uv_y, 1.0)).xy;
-    triplanar_mapping.uv_z = (uv_t * vec3(triplanar_mapping.uv_z, 1.0)).xy;
     // ----------------------- ----------------------- //
 
     let double_sided = (pbr_bindings::material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_DOUBLE_SIDED_BIT) != 0u;

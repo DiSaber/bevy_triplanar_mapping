@@ -18,22 +18,41 @@ struct TriplanarMapping {
     dpdy: vec3<f32>,
 };
 
-fn calculate_triplanar_mapping(p: vec3<f32>, in_n: vec3<f32>) -> TriplanarMapping {
+fn calculate_triplanar_mapping(p: vec3<f32>, in_n: vec3<f32>, uv_t: mat3x3<f32>, object_scale: vec3<f32>) -> TriplanarMapping {
     let n = abs(in_n);
     var w_or_n: vec3<f32>;
-    var dpdx: vec3<f32>;
-    var dpdy: vec3<f32>;
 
     if ((triplanar_extension.flags & triplanar_types::NO_BLENDING_BIT) != 0u) {
         w_or_n = n;
-        dpdx = dpdx(p);
-        dpdy = dpdy(p);
     } else {
         w_or_n = pow(n, vec3(triplanar_extension.blending));
         w_or_n /= w_or_n.x + w_or_n.y + w_or_n.z;
     }
 
-    return TriplanarMapping(w_or_n, p.yz, p.zx, p.yx, dpdx, dpdy);
+    var tm = TriplanarMapping(w_or_n, p.yz, p.zx, p.yx, vec3<f32>(), vec3<f32>());
+
+    // Only align if local space and corner alignment is set
+    if ((triplanar_extension.flags & triplanar_types::LOCAL_SPACE_BIT) != 0u) && ((triplanar_extension.flags & triplanar_types::CORNER_ALIGN_BIT) != 0u) {
+        tm.uv_x += object_scale.yz / 2.0;
+        tm.uv_y += object_scale.zx / 2.0;
+        tm.uv_z += object_scale.yx / 2.0;
+    }
+
+    // Apply uv transform
+    tm.uv_x = (uv_t * vec3(tm.uv_x, 1.0)).xy;
+    tm.uv_y = (uv_t * vec3(tm.uv_y, 1.0)).xy;
+    tm.uv_z = (uv_t * vec3(tm.uv_z, 1.0)).xy;
+
+    if ((triplanar_extension.flags & triplanar_types::NO_BLENDING_BIT) != 0u) {
+        // Compute gradients after uv transformations
+        // We can just extract the position from the uvs. No idea if it's correct for all cases though.
+        // uv_t * p doesn't work since uv_t is a "2d" transformation.
+        let uv_p = vec3<f32>(tm.uv_z.yx, tm.uv_y.x);
+        tm.dpdx = dpdx(uv_p);
+        tm.dpdy = dpdy(uv_p);
+    }
+
+    return tm;
 }
 // ----------------------- ----------------------- //
 
