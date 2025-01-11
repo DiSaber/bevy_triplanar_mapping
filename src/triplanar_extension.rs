@@ -16,12 +16,16 @@ use crate::TRIPLANAR_EXTENSION_SHADER_HANDLE;
 pub struct TriplanarExtension {
     /// The sharpness of the blending in transition areas. (default: 8.0)
     /// Lower -> Smoother transitions, Higher -> Sharper transitions
-    pub blending: f32,
+    ///
+    /// Note: Setting this value to `None` will improve performance by only performing a single texture
+    /// lookup.
+    pub blending: Option<f32>,
 
     /// If the triplanar mapping should be done in local object space. (default: true)
     pub local_space: bool,
 
     /// If the triplanar mapping should be corner aligned versus in the center aligned (default: false)
+    ///
     /// Note: This value only has an effect if `local_space` is true
     pub corner_align: bool,
 }
@@ -29,7 +33,7 @@ pub struct TriplanarExtension {
 impl Default for TriplanarExtension {
     fn default() -> Self {
         Self {
-            blending: 8.0,
+            blending: Some(8.0),
             local_space: true,
             corner_align: false,
         }
@@ -52,9 +56,12 @@ impl AsBindGroupShaderType<TriplanarExtensionUniform> for TriplanarExtension {
         if self.corner_align {
             flags |= 2;
         }
+        if self.blending.is_none() {
+            flags |= 4;
+        }
 
         TriplanarExtensionUniform {
-            blending: self.blending,
+            blending: self.blending.unwrap_or_default(),
             flags,
         }
     }
