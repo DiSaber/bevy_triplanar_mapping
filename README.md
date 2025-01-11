@@ -8,7 +8,7 @@ Simply add the `TriplanarMappingPlugin` to your app and create triplanar materia
 `TriplanarExtension` can be configured with various options that change the mapping:
 ```
 TriplanarExtension { 
-    blending: 15.0,
+    blending: Some(15.0),
     local_space: false,
     ..Default::default() 
 }
