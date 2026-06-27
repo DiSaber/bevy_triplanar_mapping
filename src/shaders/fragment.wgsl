@@ -1,5 +1,3 @@
-#define_import_path triplanar_mapping::fragment
-
 #import triplanar_mapping::triplanar_mapping::pbr_input_from_triplanar_material
 
 #import bevy_pbr::{

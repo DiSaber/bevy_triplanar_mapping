@@ -104,6 +104,14 @@ fn shader_ref(path: PathBuf) -> ShaderRef {
 }
 
 impl Material for TriplanarMaterial {
+    fn vertex_shader() -> ShaderRef {
+        shader_ref(embedded_path!("shaders/vertex.wgsl"))
+    }
+
+    fn deferred_vertex_shader() -> ShaderRef {
+        shader_ref(embedded_path!("shaders/vertex.wgsl"))
+    }
+
     fn fragment_shader() -> ShaderRef {
         shader_ref(embedded_path!("shaders/fragment.wgsl"))
     }
