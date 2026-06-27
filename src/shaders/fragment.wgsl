@@ -26,10 +26,6 @@
 #import bevy_pbr::pbr_functions::visibility_range_dither;
 #endif
 
-#ifdef MESHLET_MESH_MATERIAL_PASS
-#import bevy_pbr::meshlet_visibility_buffer_resolve::resolve_vertex_output
-#endif
-
 #ifdef OIT_ENABLED
 #import bevy_core_pipeline::oit::oit_draw
 #endif // OIT_ENABLED
@@ -40,18 +36,9 @@
 
 @fragment
 fn fragment(
-#ifdef MESHLET_MESH_MATERIAL_PASS
-    @builtin(position) frag_coord: vec4<f32>,
-#else
     vertex_output: VertexOutput,
     @builtin(front_facing) is_front: bool,
-#endif
 ) -> FragmentOutput {
-#ifdef MESHLET_MESH_MATERIAL_PASS
-    let vertex_output = resolve_vertex_output(frag_coord);
-    let is_front = true;
-#endif
-
     var in = vertex_output;
 
     // If we're in the crossfade section of a visibility range, conditionally
