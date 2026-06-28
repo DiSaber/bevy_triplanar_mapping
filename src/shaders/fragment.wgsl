@@ -1,4 +1,4 @@
-#import triplanar_mapping::triplanar_mapping::pbr_input_from_triplanar_material
+#import triplanar_mapping::triplanar_pbr::pbr_input_from_triplanar_material
 
 #import bevy_pbr::{
     pbr_types,

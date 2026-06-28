@@ -1,4 +1,4 @@
-#define_import_path triplanar_mapping::triplanar_mapping
+#define_import_path triplanar_mapping::triplanar_pbr
 
 #import triplanar_mapping::{bindings, triplanar_material}
 

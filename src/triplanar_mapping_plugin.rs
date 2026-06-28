@@ -19,7 +19,7 @@ impl Plugin for TriplanarMappingPlugin {
         load_shader_library!(app, "shaders/fragment_prepass.wgsl");
         load_shader_library!(app, "shaders/forward_io.wgsl");
         load_shader_library!(app, "shaders/prepass_io.wgsl");
-        load_shader_library!(app, "shaders/triplanar_mapping.wgsl");
+        load_shader_library!(app, "shaders/triplanar_pbr.wgsl");
         load_shader_library!(app, "shaders/triplanar_material.wgsl");
         load_shader_library!(app, "shaders/bindings.wgsl");
     }

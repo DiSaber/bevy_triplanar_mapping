@@ -4,6 +4,9 @@
     forward_io::VertexOutput
 }
 
+// Most vertex stuff from
+// https://github.com/bevyengine/bevy/blob/c6f634ca9f406d68ba5109d921247b654cb42c10/crates/bevy_pbr/src/render/mesh.wgsl
+
 #import bevy_pbr::{
     mesh_bindings::mesh,
     mesh_functions,
