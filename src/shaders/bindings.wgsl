@@ -1,6 +1,6 @@
 #define_import_path triplanar_mapping::bindings
 
-#import triplanar_mapping::types::TriplanarMaterial;
+#import triplanar_mapping::triplanar_material::TriplanarMaterial;
 
 #ifdef BINDLESS
 

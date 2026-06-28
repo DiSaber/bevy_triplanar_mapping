@@ -13,8 +13,9 @@
     pbr_deferred_functions::deferred_output,
 }
 #else
+#import triplanar_mapping::forward_io::VertexOutput
 #import bevy_pbr::{
-    forward_io::{VertexOutput, FragmentOutput},
+    forward_io::FragmentOutput,
     pbr_functions::{apply_pbr_lighting, main_pass_post_lighting_processing},
     pbr_types::STANDARD_MATERIAL_FLAGS_UNLIT_BIT,
 }

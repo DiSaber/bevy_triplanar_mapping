@@ -1,6 +1,6 @@
 #define_import_path triplanar_mapping::triplanar_mapping
 
-#import triplanar_mapping::{bindings, types}
+#import triplanar_mapping::{bindings, triplanar_material}
 
 #import bevy_render::bindless::{bindless_samplers_filtering, bindless_textures_2d}
 
@@ -25,8 +25,42 @@
 #ifdef PREPASS_PIPELINE
 #import bevy_pbr::prepass_io::VertexOutput
 #else
-#import bevy_pbr::forward_io::VertexOutput
+#import triplanar_mapping::forward_io::VertexOutput
 #endif
+
+// https://github.com/bevyengine/bevy/blob/c6f634ca9f406d68ba5109d921247b654cb42c10/crates/bevy_pbr/src/render/pbr_fragment.wgsl#L36
+fn pbr_input_from_vertex_output(
+    in: VertexOutput,
+    is_front: bool,
+    double_sided: bool,
+) -> pbr_types::PbrInput {
+    var pbr_input: pbr_types::PbrInput = pbr_types::pbr_input_new();
+
+    pbr_input.flags = mesh[in.instance_index].flags;
+
+    pbr_input.is_orthographic = view.clip_from_view[3].w == 1.0;
+    pbr_input.V = pbr_functions::calculate_view(in.world_position, pbr_input.is_orthographic);
+    pbr_input.frag_coord = in.position;
+    pbr_input.world_position = in.world_position;
+
+#ifdef VERTEX_COLORS
+    pbr_input.material.base_color = in.color;
+#endif
+
+    pbr_input.world_normal = pbr_functions::prepare_world_normal(
+        in.world_normal,
+        double_sided,
+        is_front,
+    );
+
+#ifdef LOAD_PREPASS_NORMALS
+    pbr_input.N = prepass_utils::prepass_normal(in.position, 0u);
+#else
+    pbr_input.N = normalize(pbr_input.world_normal);
+#endif
+
+    return pbr_input;
+}
 
 // Pbr stuff comes from v0.19.0
 // https://github.com/bevyengine/bevy/blob/c6f634ca9f406d68ba5109d921247b654cb42c10/crates/bevy_pbr/src/render/pbr_fragment.wgsl#L75
@@ -55,7 +89,7 @@ fn pbr_input_from_triplanar_material(
 
     let double_sided = (standard_material_flags & pbr_types::STANDARD_MATERIAL_FLAGS_DOUBLE_SIDED_BIT) != 0u;
 
-    var pbr_input: pbr_types::PbrInput = pbr_fragment::pbr_input_from_vertex_output(in, is_front, double_sided);
+    var pbr_input: pbr_types::PbrInput = pbr_input_from_vertex_output(in, is_front, double_sided);
     pbr_input.material.flags = standard_material_flags;
     pbr_input.material.base_color *= base_color;
     // pbr_input.material.deferred_lighting_pass_id = deferred_lighting_pass_id;

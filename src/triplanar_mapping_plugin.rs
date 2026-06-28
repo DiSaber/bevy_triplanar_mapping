@@ -14,9 +14,13 @@ impl Plugin for TriplanarMappingPlugin {
         app.add_plugins(MaterialPlugin::<TriplanarMaterial>::default());
 
         load_shader_library!(app, "shaders/vertex.wgsl");
+        load_shader_library!(app, "shaders/vertex_prepass.wgsl");
         load_shader_library!(app, "shaders/fragment.wgsl");
+        load_shader_library!(app, "shaders/fragment_prepass.wgsl");
+        load_shader_library!(app, "shaders/forward_io.wgsl");
+        load_shader_library!(app, "shaders/prepass_io.wgsl");
         load_shader_library!(app, "shaders/triplanar_mapping.wgsl");
-        load_shader_library!(app, "shaders/types.wgsl");
+        load_shader_library!(app, "shaders/triplanar_material.wgsl");
         load_shader_library!(app, "shaders/bindings.wgsl");
     }
 }

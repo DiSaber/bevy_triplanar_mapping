@@ -1,11 +1,15 @@
-#import triplanar_mapping::{bindings, types}
+#import triplanar_mapping::{
+    bindings,
+    types,
+    forward_io::VertexOutput
+}
 
 #import bevy_pbr::{
     mesh_bindings::mesh,
     mesh_functions,
     skinning,
     morph::{morph_position, morph_normal, morph_tangent},
-    forward_io::{Vertex, VertexOutput},
+    forward_io::Vertex,
     view_transformations::position_world_to_clip,
 }
 
@@ -106,7 +110,8 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
 
 #ifdef VISIBILITY_RANGE_DITHER
     out.visibility_range_dither = mesh_functions::get_visibility_range_dither_level(
-        vertex_no_morph.instance_index, mesh_world_from_local[3]);
+        vertex_no_morph.instance_index, mesh_world_from_local[3]
+    );
 #endif
 
     return out;
