@@ -52,7 +52,7 @@ impl Default for TriplanarMaterial {
             blending: Some(8.0),
             offset: Vec3::ZERO,
             scale: Vec3::ONE,
-            local_space: true,
+            local_space: false,
             local_offset_fraction: Vec3::ZERO,
             base_color: Color::WHITE,
             base_color_texture: None,

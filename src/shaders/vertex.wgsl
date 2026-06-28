@@ -1,6 +1,6 @@
 #import triplanar_mapping::{
     bindings,
-    types,
+    triplanar_material,
     forward_io::VertexOutput
 }
 
@@ -113,6 +113,42 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
         vertex_no_morph.instance_index, mesh_world_from_local[3]
     );
 #endif
+
+#ifdef BINDLESS
+    let slot = mesh[vertex_no_morph.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
+    let offset = bindings::material_array[bindings::material_indices[slot].material].offset;
+    let scale = bindings::material_array[bindings::material_indices[slot].material].scale;
+    let local_offset_fraction = bindings::material_array[bindings::material_indices[slot].material].local_offset_fraction;
+    let triplanar_material_flags = bindings::material_array[bindings::material_indices[slot].material].triplanar_material_flags;
+#else   // BINDLESS
+    let offset = bindings::material.offset;
+    let scale = bindings::material.scale;
+    let local_offset_fraction = bindings::material.local_offset_fraction;
+    let triplanar_material_flags = bindings::material.triplanar_material_flags;
+#endif  // BINDLESS
+
+
+    if ((triplanar_material_flags & triplanar_material::LOCAL_SPACE_BIT) != 0u) {
+        let world_from_local3x3 = mat3x3<f32>(
+            world_from_local[0].xyz,
+            world_from_local[1].xyz,
+            world_from_local[2].xyz,
+        );
+        let mesh_scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
+
+        out.triplanar_position = vertex.position * mesh_scale;
+        out.triplanar_position += (mesh_scale * local_offset_fraction) / 2.0;
+#ifdef VERTEX_NORMALS
+        out.triplanar_normal = normalize(vertex.normal / mesh_scale);
+#endif
+    } else {
+        out.triplanar_position = out.world_position.xyz;
+#ifdef VERTEX_NORMALS
+        out.triplanar_normal = out.world_normal;
+#endif
+    }
+
+    out.triplanar_position = (out.triplanar_position / scale) - offset;
 
     return out;
 }

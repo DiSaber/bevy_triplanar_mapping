@@ -68,9 +68,8 @@ fn pbr_input_from_triplanar_material(
     in: VertexOutput,
     is_front: bool,
 ) -> pbr_types::PbrInput {
-    let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
-
 #ifdef BINDLESS
+    let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
     let triplanar_material_flags = bindings::material_array[bindings::material_indices[slot].material].triplanar_material_flags;
     let standard_material_flags = bindings::material_array[bindings::material_indices[slot].material].standard_material_flags;
     let base_color = bindings::material_array[bindings::material_indices[slot].material].base_color;
