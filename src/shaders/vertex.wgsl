@@ -140,7 +140,7 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
         let mesh_scale = vec3<f32>(length(world_from_local3x3[0]), length(world_from_local3x3[1]), length(world_from_local3x3[2]));
 
         out.triplanar_position = vertex.position * mesh_scale;
-        out.triplanar_position += (mesh_scale * local_offset_fraction) / 2.0;
+        out.triplanar_position += mesh_scale * local_offset_fraction;
 #ifdef VERTEX_NORMALS
         out.triplanar_normal = normalize(vertex.normal / mesh_scale);
 #endif

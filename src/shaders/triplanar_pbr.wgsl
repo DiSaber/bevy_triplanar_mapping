@@ -1,6 +1,13 @@
 #define_import_path triplanar_mapping::triplanar_pbr
 
-#import triplanar_mapping::{bindings, triplanar_material}
+#import triplanar_mapping::{
+    bindings,
+    triplanar_material,
+    triplanar_mapping::{
+        calculate_triplanar_mapping,
+        sample_base_color_triplanar,
+    },
+}
 
 #import bevy_render::bindless::{bindless_samplers_filtering, bindless_textures_2d}
 
@@ -70,21 +77,20 @@ fn pbr_input_from_triplanar_material(
 ) -> pbr_types::PbrInput {
 #ifdef BINDLESS
     let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
-    let triplanar_material_flags = bindings::material_array[bindings::material_indices[slot].material].triplanar_material_flags;
-    let standard_material_flags = bindings::material_array[bindings::material_indices[slot].material].standard_material_flags;
     let base_color = bindings::material_array[bindings::material_indices[slot].material].base_color;
+    let standard_material_flags = bindings::material_array[bindings::material_indices[slot].material].standard_material_flags;
     // TODO: Add this parameter
     // let deferred_lighting_pass_id =
     // pbr_bindings::material_array[material_indices[slot].material].deferred_lighting_pass_id;
     // let alpha_cutoff = pbr_bindings::material_array[material_indices[slot].material].alpha_cutoff;
 #else   // BINDLESS
-    let triplanar_material_flags = bindings::material.triplanar_material_flags;
-    let standard_material_flags = bindings::material.standard_material_flags;
     let base_color = bindings::material.base_color;
+    let standard_material_flags = bindings::material.standard_material_flags;
     // let deferred_lighting_pass_id = pbr_bindings::material.deferred_lighting_pass_id;
     // let alpha_cutoff = pbr_bindings::material.alpha_cutoff;
 #endif  // BINDLESS
 
+    let triplanar_mapping = calculate_triplanar_mapping(in);
 
     let double_sided = (standard_material_flags & pbr_types::STANDARD_MATERIAL_FLAGS_DOUBLE_SIDED_BIT) != 0u;
 
@@ -101,17 +107,9 @@ fn pbr_input_from_triplanar_material(
     bias.mip_bias = view.mip_bias;
 
     if ((standard_material_flags & pbr_types::STANDARD_MATERIAL_FLAGS_BASE_COLOR_TEXTURE_BIT) != 0u) {
-        pbr_input.material.base_color *=
-            textureSampleBias(
-#ifdef BINDLESS
-                bindless_textures_2d[bindings::material_indices[slot].base_color_texture],
-                bindless_samplers_filtering[bindings::material_indices[slot].base_color_sampler],
-#else   // BINDLESS
-                bindings::base_color_texture,
-                bindings::base_color_sampler,
-#endif  // BINDLESS
-                in.uv,
-                bias.mip_bias,
+        pbr_input.material.base_color *= sample_base_color_triplanar(
+            triplanar_mapping,
+            bias,
         );
     }
 
